@@ -4,24 +4,47 @@ import { Hoodie } from "./HoddieModel";
 import * as THREE from "three";
 
 export const Experience = () => {
-  const [logoTexture, setLogoTexture] = useState(null);
+  const [customTextures, setCustomTextures] = useState({
+    Main003: null,
+    Main004: null,
+    Arms002: null
+  });
 
   useEffect(() => {
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load(
-      "/Diagonal.png",
-      (texture) => {
-        texture.flipY = false;
-        texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.anisotropy = 16;
-        texture.needsUpdate = true;
-        setLogoTexture(texture);
-      },
-      undefined,
-      (error) => console.error("Error loading logo texture:", error)
-    );
+    
+    // Load different textures for each mesh
+    const texturePaths = {
+      Main003: "/logoPrint.jpeg",
+      Main004: "/Decal.webp", // Replace with actual path
+      Arms002: "/Diagonal.png"  // Replace with actual path
+    };
+    
+    // Create a map to store loaded textures
+    const loadedTextures = {};
+    
+    // Load each texture
+    Object.entries(texturePaths).forEach(([meshName, path]) => {
+      textureLoader.load(
+        path,
+        (texture) => {
+          texture.flipY = false;
+          texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.anisotropy = 16;
+          texture.needsUpdate = true;
+          
+          // Update the textures state with this new texture
+          setCustomTextures(prev => ({
+            ...prev,
+            [meshName]: texture
+          }));
+        },
+        undefined,
+        (error) => console.error(`Error loading texture for ${meshName}:`, error)
+      );
+    });
   }, []);
 
   return (
@@ -48,7 +71,7 @@ export const Experience = () => {
       <Hoodie
         position={[0, 0, 0]}
         scale={1}
-        decalProps={{ logoTexture }}
+        decalProps={{ customTextures }}
       />
       <ContactShadows
         position={[0, -1.5, 0]}
